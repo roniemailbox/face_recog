@@ -146,7 +146,7 @@ class _LocationTrackerScreenState extends State<LocationTrackerScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tracking Radius'),
+        title: const Text('Check Point'),
         leading: Tooltip(
           message: 'Face Recognition',
           child: IconButton(
@@ -210,16 +210,37 @@ class _LocationTrackerScreenState extends State<LocationTrackerScreen> {
                 for (final p in provider.points)
                   Marker(
                     point: LatLng(p.lat, p.lon),
-                    width: 40,
-                    height: 40,
+                    width: 120,
+                    height: 60,
+                    alignment: Alignment.bottomCenter,
                     child: Tooltip(
                       message: '${p.nama}\nRadius: ${p.radius.toStringAsFixed(0)}m',
-                      child: Icon(
-                        Icons.location_on,
-                        color: provider.insidePoint?.id == p.id
-                            ? Colors.green
-                            : Colors.red,
-                        size: 36,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: const Color(0xCC1A1A2E),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              p.nama,
+                              style: TextStyle(
+                                color: provider.insidePoint?.id == p.id ? Colors.green : Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          Icon(
+                            Icons.location_on,
+                            color: provider.insidePoint?.id == p.id
+                                ? Colors.green
+                                : Colors.red,
+                            size: 28,
+                          ),
+                        ],
                       ),
                     ),
                   ),

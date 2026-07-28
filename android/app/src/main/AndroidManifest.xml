@@ -6,7 +6,7 @@
     <uses-feature android:name="android.hardware.camera" android:required="true" />
     <uses-feature android:name="android.hardware.location.gps" android:required="false" />
     <application
-        android:label="face_recog"
+        android:label="Check Point"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

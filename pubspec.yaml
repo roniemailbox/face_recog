@@ -1,5 +1,5 @@
-name: face_recog
-description: "A new Flutter project."
+name: check_point
+description: "GPS Radius Check Point - Location Tracking"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
