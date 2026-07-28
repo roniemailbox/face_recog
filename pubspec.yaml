@@ -58,6 +58,8 @@ dependencies:
 
   # OpenStreetMap (no API key)
   flutter_map: ^7.0.2
+  flutter_map_cache: ^1.5.1
+  dio_cache_interceptor: ^3.5.1
   latlong2: ^0.9.1
 
   # File system paths

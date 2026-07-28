@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_cache/flutter_map_cache.dart';
+import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import '../models/location_point.dart';
@@ -18,6 +20,9 @@ class _LocationTrackerScreenState extends State<LocationTrackerScreen> {
   final _latCtrl = TextEditingController();
   final _lonCtrl = TextEditingController();
   final _radiusCtrl = TextEditingController(text: '50');
+
+  // Cache store untuk tile peta offline
+  final _tileStore = MemCacheStore(maxSize: 50 * 1024 * 1024); // 50MB
 
   @override
   void initState() {
@@ -307,7 +312,10 @@ class _LocationTrackerScreenState extends State<LocationTrackerScreen> {
             children: [
               TileLayer(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.example.face_recog',
+                userAgentPackageName: 'com.example.check_point',
+                tileProvider: CachedTileProvider(
+                  store: _tileStore,
+                ),
               ),
 
               // ── Radius circles ──
