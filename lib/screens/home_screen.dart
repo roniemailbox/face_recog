@@ -145,37 +145,63 @@ class _BottomBar extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _PillBtn(icon: p.mode == AppMode.recognize ? Icons.fingerprint : Icons.search_off, label: p.mode == AppMode.recognize ? 'Recognize' : 'Detect', active: p.mode == AppMode.recognize, onTap: () => p.toggleMode()),
+        _IconBtn(
+          icon: Icons.map,
+          tooltip: 'Tracking Radius',
+          active: false,
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LocationTrackerScreen())),
+        ),
         const SizedBox(width: 10),
-        _PillBtn(icon: Icons.person_add_alt, label: 'Register', active: false, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ChangeNotifierProvider.value(value: p, child: const RegisterFaceScreen())))),
+        _IconBtn(
+          icon: p.mode == AppMode.recognize ? Icons.fingerprint : Icons.search_off,
+          tooltip: p.mode == AppMode.recognize ? 'Recognize Mode' : 'Detect Mode',
+          active: p.mode == AppMode.recognize,
+          onTap: () => p.toggleMode(),
+        ),
         const SizedBox(width: 10),
-        _PillBtn(icon: Icons.people_outline, label: '${p.registeredCount}', active: false, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ChangeNotifierProvider.value(value: p, child: const RegisteredFacesScreen())))),
+        _IconBtn(
+          icon: Icons.person_add_alt,
+          tooltip: 'Register Wajah',
+          active: false,
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ChangeNotifierProvider.value(value: p, child: const RegisterFaceScreen()))),
+        ),
         const SizedBox(width: 10),
-        _PillBtn(icon: Icons.map, label: 'Radius', active: false, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LocationTrackerScreen()))),
+        _IconBtn(
+          icon: Icons.people_outline,
+          tooltip: 'Data Wajah (${p.registeredCount})',
+          active: false,
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ChangeNotifierProvider.value(value: p, child: const RegisteredFacesScreen()))),
+        ),
       ],
     );
   }
 }
 
-class _PillBtn extends StatelessWidget {
-  final IconData icon; final String label; final bool active; final VoidCallback onTap;
-  const _PillBtn({required this.icon, required this.label, required this.active, required this.onTap});
+class _IconBtn extends StatelessWidget {
+  final IconData icon;
+  final String tooltip;
+  final bool active;
+  final VoidCallback onTap;
+  const _IconBtn({required this.icon, required this.tooltip, required this.active, required this.onTap});
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
-        decoration: BoxDecoration(
-          color: active ? Colors.teal.withValues(alpha: 0.8) : Colors.white.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: active ? Colors.tealAccent : Colors.white.withValues(alpha: 0.2)),
+    return Tooltip(
+      message: tooltip,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: active ? Colors.teal.withValues(alpha: 0.8) : Colors.white.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: active ? Colors.tealAccent : Colors.white.withValues(alpha: 0.2),
+            ),
+          ),
+          child: Icon(icon, color: Colors.white, size: 22),
         ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Icon(icon, color: Colors.white, size: 18),
-          const SizedBox(width: 6),
-          Text(label, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500)),
-        ]),
       ),
     );
   }

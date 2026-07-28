@@ -3,7 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'providers/face_detection_provider.dart';
 import 'providers/location_provider.dart';
-import 'screens/home_screen.dart';
+import 'screens/location_tracker_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,7 +34,7 @@ class FaceRecogApp extends StatelessWidget {
           ),
           useMaterial3: true,
         ),
-        home: const HomeScreen(),
+        home: const LocationTrackerScreen(),
       ),
     );
   }

@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import '../models/location_point.dart';
 import '../providers/location_provider.dart';
+import 'home_screen.dart' show HomeScreen;
 
 class LocationTrackerScreen extends StatefulWidget {
   const LocationTrackerScreen({super.key});
@@ -146,6 +147,14 @@ class _LocationTrackerScreenState extends State<LocationTrackerScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tracking Radius'),
+        leading: Tooltip(
+          message: 'Face Recognition',
+          child: IconButton(
+            icon: const Icon(Icons.face),
+            onPressed: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const HomeScreen())),
+          ),
+        ),
         actions: [
           IconButton(
             icon: Icon(provider.isTracking ? Icons.stop : Icons.play_arrow),
