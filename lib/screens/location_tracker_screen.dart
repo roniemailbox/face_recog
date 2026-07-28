@@ -36,8 +36,71 @@ class _LocationTrackerScreenState extends State<LocationTrackerScreen> {
     super.dispose();
   }
 
+  // ── Quick add: langsung dari FAB ──
+  void _quickAddPoint(LocationProvider provider) async {
+    if (provider.currentPosition == null) return;
+    final p = provider.currentPosition!;
+    _namaCtrl.clear();
+    _radiusCtrl.text = '50';
+
+    final nama = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Tambah Titik Cepat'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.my_location, color: Colors.teal, size: 40),
+            const SizedBox(height: 10),
+            Text(
+                'Posisi: ${p.latitude.toStringAsFixed(6)}, ${p.longitude.toStringAsFixed(6)}',
+                style: const TextStyle(fontSize: 12, color: Colors.white54)),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _namaCtrl,
+              autofocus: true,
+              decoration: const InputDecoration(
+                labelText: 'Nama titik',
+                hintText: 'contoh: Pos Security',
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: _radiusCtrl,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Radius (meter)',
+                suffixText: 'm',
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('BATAL')),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, _namaCtrl.text),
+            child: const Text('SIMPAN'),
+          ),
+        ],
+      ),
+    );
+
+    if (nama == null) return;
+    final radius = double.tryParse(_radiusCtrl.text) ?? 50;
+    provider.savePoint(LocationPoint(
+      nama: nama.isEmpty ? 'Titik' : nama,
+      lat: p.latitude,
+      lon: p.longitude,
+      radius: radius,
+    ));
+    _namaCtrl.clear();
+    _radiusCtrl.text = '50';
+  }
+
   // ── Dialog tambah titik ──
   void _showAddDialog([LocationPoint? existing]) {
+    final provider = context.read<LocationProvider>();
+
     if (existing != null) {
       _namaCtrl.text = existing.nama;
       _latCtrl.text = existing.lat.toString();
@@ -52,84 +115,134 @@ class _LocationTrackerScreenState extends State<LocationTrackerScreen> {
 
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(existing != null ? 'Edit Titik' : 'Tambah Titik'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _namaCtrl,
-                decoration: const InputDecoration(
-                    labelText: 'Nama', hintText: 'contoh: Kantor, Sekolah'),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _latCtrl,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: 'Latitude'),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          title: Text(existing != null ? 'Edit Titik' : 'Tambah Titik'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // ── Auto-fill dari GPS ──
+                if (existing == null) ...[
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.teal.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.teal.withValues(alpha: 0.3)),
+                    ),
+                    child: Column(
+                      children: [
+                        const Icon(Icons.gps_fixed, color: Colors.teal, size: 28),
+                        const SizedBox(height: 6),
+                        const Text('Auto-detect posisi',
+                            style: TextStyle(color: Colors.teal, fontSize: 13, fontWeight: FontWeight.w600)),
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            icon: const Icon(Icons.my_location, size: 18),
+                            label: Text(provider.currentPosition != null
+                                ? '📍 Gunakan Posisi Saat Ini'
+                                : '▶ Mulai Tracking GPS'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.teal,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                            onPressed: () async {
+                              if (provider.currentPosition == null) {
+                                await provider.startTracking();
+                                await Future.delayed(const Duration(seconds: 1));
+                              }
+                              if (provider.currentPosition != null) {
+                                _latCtrl.text = provider.currentPosition!.latitude.toStringAsFixed(7);
+                                _lonCtrl.text = provider.currentPosition!.longitude.toStringAsFixed(7);
+                                setDialogState(() {});
+                              }
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: TextField(
-                      controller: _lonCtrl,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: 'Longitude'),
-                    ),
-                  ),
+                  const SizedBox(height: 14),
                 ],
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: _radiusCtrl,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Radius (meter)',
-                  suffixText: 'm',
+
+                TextField(
+                  controller: _namaCtrl,
+                  decoration: const InputDecoration(
+                      labelText: 'Nama', hintText: 'contoh: Kantor, Sekolah'),
                 ),
-              ),
-            ],
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _latCtrl,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(labelText: 'Latitude'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: TextField(
+                        controller: _lonCtrl,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(labelText: 'Longitude'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: _radiusCtrl,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Radius (meter)',
+                    suffixText: 'm',
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('BATAL')),
-          if (existing != null)
+          actions: [
             TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('BATAL')),
+            if (existing != null)
+              TextButton(
+                onPressed: () {
+                  context.read<LocationProvider>().deletePoint(existing.id!);
+                  Navigator.pop(ctx);
+                },
+                child: const Text('HAPUS', style: TextStyle(color: Colors.red)),
+              ),
+            ElevatedButton(
               onPressed: () {
-                context.read<LocationProvider>().deletePoint(existing.id!);
+                final lat = double.tryParse(_latCtrl.text);
+                final lon = double.tryParse(_lonCtrl.text);
+                final radius = double.tryParse(_radiusCtrl.text);
+                if (lat == null || lon == null || radius == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Isi koordinat & radius yang valid')),
+                  );
+                  return;
+                }
+                context.read<LocationProvider>().savePoint(LocationPoint(
+                      id: existing?.id,
+                      nama: _namaCtrl.text.isEmpty ? 'Titik' : _namaCtrl.text,
+                      lat: lat,
+                      lon: lon,
+                      radius: radius,
+                    ));
                 Navigator.pop(ctx);
               },
-              child: const Text('HAPUS', style: TextStyle(color: Colors.red)),
+              child: Text(existing != null ? 'UPDATE' : 'SIMPAN'),
             ),
-          ElevatedButton(
-            onPressed: () {
-              final lat = double.tryParse(_latCtrl.text);
-              final lon = double.tryParse(_lonCtrl.text);
-              final radius = double.tryParse(_radiusCtrl.text);
-              if (lat == null || lon == null || radius == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Isi koordinat & radius yang valid')),
-                );
-                return;
-              }
-              context.read<LocationProvider>().savePoint(LocationPoint(
-                    id: existing?.id,
-                    nama: _namaCtrl.text.isEmpty ? 'Titik' : _namaCtrl.text,
-                    lat: lat,
-                    lon: lon,
-                    radius: radius,
-                  ));
-              Navigator.pop(ctx);
-            },
-            child: Text(existing != null ? 'UPDATE' : 'SIMPAN'),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -174,6 +287,15 @@ class _LocationTrackerScreenState extends State<LocationTrackerScreen> {
           ),
         ],
       ),
+      floatingActionButton: provider.currentPosition != null
+          ? FloatingActionButton.extended(
+              onPressed: () => _quickAddPoint(provider),
+              backgroundColor: Colors.teal,
+              icon: const Icon(Icons.add_location),
+              label: const Text('Tambah Titik'),
+              tooltip: 'Tambah titik di posisi saat ini',
+            )
+          : null,
       body: Stack(
         children: [
           // ── MAP ──
