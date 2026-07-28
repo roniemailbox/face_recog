@@ -48,8 +48,17 @@ dependencies:
   permission_handler: ^11.3.1
 
   # Local database
+  sqflite: ^2.3.3
+  path: ^1.9.0
   hive: ^2.2.3
   hive_flutter: ^1.1.0
+
+  # GPS & Location
+  geolocator: ^12.0.0
+
+  # OpenStreetMap (no API key)
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
 
   # File system paths
   path_provider: ^2.1.3

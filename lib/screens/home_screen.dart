@@ -7,6 +7,7 @@ import '../widgets/face_overlay.dart';
 import '../widgets/face_guide_overlay.dart';
 import 'register_face_screen.dart';
 import 'registered_faces_screen.dart';
+import 'location_tracker_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -149,6 +150,8 @@ class _BottomBar extends StatelessWidget {
         _PillBtn(icon: Icons.person_add_alt, label: 'Register', active: false, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ChangeNotifierProvider.value(value: p, child: const RegisterFaceScreen())))),
         const SizedBox(width: 10),
         _PillBtn(icon: Icons.people_outline, label: '${p.registeredCount}', active: false, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ChangeNotifierProvider.value(value: p, child: const RegisteredFacesScreen())))),
+        const SizedBox(width: 10),
+        _PillBtn(icon: Icons.map, label: 'Radius', active: false, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LocationTrackerScreen()))),
       ],
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'providers/face_detection_provider.dart';
+import 'providers/location_provider.dart';
 import 'screens/home_screen.dart';
 
 void main() async {
@@ -18,8 +19,11 @@ class FaceRecogApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => FaceDetectionProvider(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => FaceDetectionProvider()),
+        ChangeNotifierProvider(create: (_) => LocationProvider()),
+      ],
       child: MaterialApp(
         title: 'Face Recognition',
         debugShowCheckedModeBanner: false,
